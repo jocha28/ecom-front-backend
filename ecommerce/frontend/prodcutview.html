@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <title>Produits des Vendeurs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .product-post {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .product-post .header {
+            display: flex;
+            align-items: center;
+        }
+        .product-post .header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .product-post .header .seller-info {
+            flex-grow: 1;
+        }
+        .product-post .header .seller-info h3 {
+            margin: 0;
+            color: #333;
+        }
+        .product-post .header .seller-info p {
+            margin: 5px 0;
+            color: #777;
+            font-size: 14px;
+        }
+        .product-post img.product-image {
+            width: 100%;
+            max-height: 607px;
+            object-fit: cover;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+        .product-post .product-info {
+            margin-top: 15px;
+        }
+        .product-post .product-info h4 {
+            color: #333;
+            margin: 10px 0;
+        }
+        .product-post .product-info p {
+            color: #555;
+            margin: 5px 0;
+        }
+        .product-post .product-info .price {
+            color: #28a745;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .product-info {
+        margin-top: 15px;
+    }
+    .product-icons {
+        display: flex; /* Flexbox pour alignement sur une ligne */
+        gap: 20px; /* Espacement entre les éléments */
+        flex-wrap: wrap; /* Permet de passer à la ligne si nécessaire */
+    }
+    .icon-text {
+        display: flex; /* Aligne l'icône et le texte côte à côte */
+        align-items: center; /* Centrer verticalement */
+        gap: 8px; /* Espacement entre l'icône et le texte */
+        font-size: 16px;
+        color: #555;
+    }
+    .icon-text i {
+        font-size: 20px; /* Taille de l'icône */
+        color: #333; /* Couleur de l'icône */
+    }
+    .icon-text a {
+        text-decoration: none;
+        color: #000000;
+        font-weight: bold;
+    }
+    .icon-text a:hover {
+        color: #070000;
+    }
+    .whatsapp-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #25D366;
+        color: rgb(5, 0, 0);
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+    .whatsapp-link:hover {
+        background-color: #1ebd5a;
+    }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="productsContainer">
+        <!-- Les produits seront affichés ici -->
+    </div>
+    <div id="navbar"></div>
+    <script src="loadNavbar.js"></script>
+
+
+    <script>
+        // URL de l'API pour récupérer les produits et les vendeurs
+        const productUrl = "http://127.0.0.1:8000/api/products/"; // Remplacez par votre URL
+        const sellerUrl = "http://127.0.0.1:8000/api/sellers/"; // Remplacez par votre URL
+
+        const productsContainer = document.getElementById('productsContainer');
+
+        // Fonction pour récupérer et afficher les produits
+        function loadProducts() {
+            fetch(productUrl)
+                .then(response => response.json())
+                .then(products => {
+                    // Pour chaque produit, récupérer les informations et les afficher
+                    products.forEach(product => {
+                        fetch(`${sellerUrl}${product.seller}`)
+                            .then(response => response.json())
+                            .then(seller => {
+                                // Créer la publication pour chaque produit
+                                const productPost = document.createElement('div');
+                                productPost.classList.add('product-post');
+                                
+                                productPost.innerHTML = `
+                                    <div class="header">
+                                        <img src="${seller.profile_picture}" alt="${seller.name}" />
+                                        <div class="seller-info">
+                                            <h3>${seller.name}</h3>
+                                            <p>${seller.email}</p>
+                                            <p>Publié le ${new Date(product.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <img src="${product.image}" alt="${product.name}" class="product-image" />
+                                    <div class="product-info">
+                                        <h4>${product.description}</h4>
+                                        <h2>${product.name}</h2>
+                                        
+                                    </div>
+                                `;
+
+                                // Ajouter la publication au conteneur
+                                productsContainer.appendChild(productPost);
+                            })
+                            .catch(error => console.error("Erreur lors de la récupération du vendeur:", error));
+                    });
+                })
+                .catch(error => console.error("Erreur lors de la récupération des produits:", error));
+        }
+
+        // Charger les produits lors du chargement de la page
+        loadProducts();
+    </script>
+
+</body>
+</html>

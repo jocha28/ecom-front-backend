@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidéos des Produits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .product-post {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .product-post .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .product-post .header img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .product-post .header .seller-info {
+            flex-grow: 1;
+        }
+        .product-post .header .seller-info h3 {
+            margin: 0;
+            color: #333;
+        }
+        .product-post .header .seller-info p {
+            margin: 5px 0;
+            color: #777;
+            font-size: 14px;
+        }
+        .product-post video {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .product-post .product-info {
+            margin-top: 10px;
+        }
+        .product-post .product-info h2 {
+            color: #333;
+            margin: 5px 0;
+        }
+        .product-post .product-info h4 {
+            color: #555;
+            margin: 5px 0;
+        }
+        .product-post .product-info .price {
+            color: #28a745;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="productsContainer">
+        <!-- Les vidéos des produits seront affichées ici -->
+    </div>
+    <div id="navbar"></div>
+    <script src="loadNavbar.js"></script>
+
+    <script>
+        // URL de l'API pour récupérer les produits et les vendeurs
+        const productUrl = "http://127.0.0.1:8000/api/products/"; // Remplacez par votre URL
+        const sellerUrl = "http://127.0.0.1:8000/api/sellers/"; // Remplacez par votre URL
+
+        const productsContainer = document.getElementById('productsContainer');
+
+        // Fonction pour récupérer et afficher les produits
+        function loadProducts() {
+            fetch(productUrl)
+                .then(response => response.json())
+                .then(products => {
+                    // Pour chaque produit, récupérer les informations et les afficher
+                    products.forEach(product => {
+                        fetch(`${sellerUrl}${product.seller}`)
+                            .then(response => response.json())
+                            .then(seller => {
+                                // Créer la publication pour chaque produit
+                                const productPost = document.createElement('div');
+                                productPost.classList.add('product-post');
+                                
+                                productPost.innerHTML = `
+                                    <div class="header">
+                                        <img src="${seller.profile_picture}" alt="${seller.name}" />
+                                        <div class="seller-info">
+                                            <h3>${seller.name}</h3>
+                                            <p>${seller.email}</p>
+                                            <p>Publié le ${new Date(product.created_at).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <video controls>
+                                        <source src="${product.video}" type="video/mp4">
+                                        Votre navigateur ne prend pas en charge la vidéo.
+                                    </video>
+                                    <div class="product-info">
+                                        <h4>${product.description}</h4>
+                                        <h2>${product.name}</h2>
+                                    </div>
+                                `;
+
+                                // Ajouter la publication au conteneur
+                                productsContainer.appendChild(productPost);
+                            })
+                            .catch(error => console.error("Erreur lors de la récupération du vendeur:", error));
+                    });
+                })
+                .catch(error => console.error("Erreur lors de la récupération des produits:", error));
+        }
+
+        // Charger les produits lors du chargement de la page
+        loadProducts();
+    </script>
+
+</body>
+</html>

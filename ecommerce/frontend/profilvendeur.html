@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <title>Profil Vendeur Moderne</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #4267B2;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 15px;
+        }
+        .profile-card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .cover-photo {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+        .profile-header {
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .profile-header img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin-top: -60px;
+        }
+        .profile-header h2 {
+            margin: 15px 0 5px;
+            color: #333;
+        }
+        .profile-header p {
+            color: #777;
+            font-size: 14px;
+        }
+        .bio {
+            padding: 15px;
+            background: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+        .products-section {
+            margin-top: 20px;
+        }
+        .products-grid {
+            display: flex; /* Définit une disposition flexible horizontale */
+            gap: 15px; /* Espace entre les cartes */
+            overflow-x: auto; /* Active le défilement horizontal */
+            scroll-snap-type: x mandatory; /* Active l'alignement des cartes */
+            padding: 15px 0;
+        }
+
+        .product-card, .video-card {
+            flex: 0 0 auto; /* Empêche les cartes de s'étirer */
+            scroll-snap-align: start; /* Aligne chaque carte sur le début du conteneur */
+            width: 452px; /* Largeur des cartes */
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .products-grid::-webkit-scrollbar {
+            display: none; /* Cache la barre de défilement dans les navigateurs WebKit */
+        }
+
+        .products-grid {
+            -ms-overflow-style: none; /* Cache la barre de défilement dans Internet Explorer */
+            scrollbar-width: none; /* Cache la barre de défilement dans Firefox */
+        }
+        .product-card:hover, .video-card:hover {
+            transform: scale(1.05);
+        }
+        .product-card img, .video-card video {
+            width: 100%;
+            height: 472px;
+            object-fit: cover;
+        }
+        .product-info, .video-info {
+            padding: 10px;
+        }
+        .product-info h4 {
+            margin: 0 0 5px;
+            font-size: 16px;
+            color: #333;
+        }
+        .product-info p {
+            margin: 5px 0;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .product-info .prices {
+            display: flex;
+            align-items: center;
+            gap: 94px; /* Espace entre les prix */
+        }
+
+        .product-info .price,
+        .product-info .min-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #777;
+            cursor: pointer; /* Pour indiquer que l'élément est cliquable */
+            transition: color 0.3s ease;
+        }
+
+        .product-info .price:hover,
+        .product-info .min-price:hover {
+            color: #4267B2; /* Change la couleur lors du survol */
+        }
+
+        .product-info .price.show,
+        .product-info .min-price.show {
+            color: #28a745; /* Couleur du prix lorsque visible */
+        }
+        
+        .cta-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #28a745;;
+            color: white;
+            text-align: center;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .cta-button:hover {
+            background: #000000;
+        }
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        .contact-info a {
+            text-decoration: none;
+            color: #555;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: color 0.3s ease;
+        }
+        .contact-info a:hover {
+            color: #4267B2;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">Profil Vendeur</div>
+
+    <div class="container" id="profileContainer">
+        <!-- Le contenu dynamique sera ajouté ici -->
+    </div>
+    <div id="navbar"></div>
+    <script src="loadNavbar.js"></script>
+
+    <script>
+        const sellerUrl = "http://127.0.0.1:8000/api/sellers/";
+        const productsUrl = "http://127.0.0.1:8000/api/products/";
+
+        const profileContainer = document.getElementById('profileContainer');
+
+        function loadSellerProfile(sellerId) {
+            fetch(`${sellerUrl}${sellerId}/`)
+                .then(response => response.json())
+                .then(seller => {
+                    const profileCard = document.createElement('div');
+                    profileCard.classList.add('profile-card');
+
+                    profileCard.innerHTML = `
+                        <img src="${seller.cover_photo}" alt="Photo de couverture" class="cover-photo" />
+                        <div class="profile-header">
+                            <img src="${seller.profile_picture}" alt="${seller.name}" />
+                            <h2>${seller.name}</h2>
+                            <div class="contact-info">
+                                <a href="mailto:${seller.email}" target="_blank"><i class="fas fa-envelope"></i> ${seller.email}</a>
+                                <a href="tel:${seller.phone}" target="_blank"><i class="fas fa-phone"></i> ${seller.phone || 'Non renseigné'}</a>
+                                <a href="https://facebook/${seller.facebook}" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
+                                <a href="https://wa.me/${seller.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                            </div>
+                        </div>
+                        <div class="bio">
+                            <h3>Bio</h3>
+                            <p>${seller.bio || 'Aucune bio disponible.'}</p>
+                        </div>
+                    `;
+
+                    profileContainer.appendChild(profileCard);
+
+                    loadSellerProducts(sellerId);
+                })
+                .catch(error => console.error("Erreur lors de la récupération du profil vendeur:", error));
+        }
+
+        function loadSellerProducts(sellerId) {
+            fetch(`${productsUrl}?seller=${sellerId}`)
+                .then(response => response.json())
+                .then(products => {
+                    // Section des photos
+                    const productsSection = document.createElement('div');
+                    productsSection.classList.add('products-section');
+                    productsSection.innerHTML = `<h3>Photos des Produits</h3>`;
+
+                    const productsGrid = document.createElement('div');
+                    productsGrid.classList.add('products-grid');
+
+                    products.forEach(product => {
+                        if (product.image) {
+                            const productCard = document.createElement('div');
+                            productCard.classList.add('product-card');
+                            productCard.innerHTML = `
+                                <img src="${product.image}" alt="${product.name}" />
+                                <div class="product-info">
+                                    <h4>${product.name}</h4>
+                                    <p>${product.description}</p>
+                                    <div class="prices">
+                                        <a href="javascript:void(0);" class="price" onclick="togglePrice(this, '${product.price}')">
+                                            <i class="fas fa-tag"></i> <span>Prix</span>
+                                        </a>
+                                        <a href="javascript:void(0);" class="min-price" onclick="togglePrice(this, '${product.min_price}')">
+                                            <i class="fas fa-money-bill-wave"></i> <span>Dernier Prix</span>
+                                        </a>
+                                    </div>
+                                    <a href="https://wa.me/${product.product_whatsapp}" class="cta-button">
+                                        <i class="fab fa-whatsapp"></i> Commande
+                                    </a>
+                                </div>
+                            `;
+                            productsGrid.appendChild(productCard);
+                        }
+                    });
+
+                    productsSection.appendChild(productsGrid);
+                    profileContainer.appendChild(productsSection);
+
+                    // Section des vidéos
+                    const videosSection = document.createElement('div');
+                    videosSection.classList.add('products-section');
+                    videosSection.innerHTML = `<h3>Vidéos des Produits</h3>`;
+
+                    const videosGrid = document.createElement('div');
+                    videosGrid.classList.add('products-grid');
+
+                    products.forEach(product => {
+                        if (product.video) {
+                            const videoCard = document.createElement('div');
+                            videoCard.classList.add('video-card');
+                            videoCard.innerHTML = `
+                                <video src="${product.video}" controls></video>
+                                <div class="product-info">
+                                    <h4>${product.name}</h4>
+                                    <p>${product.description}</p>
+                                    <div class="prices">
+                                        <a href="javascript:void(0);" class="price" onclick="togglePrice(this, '${product.price}')">
+                                            <i class="fas fa-tag"></i> <span>Prix</span>
+                                        </a>
+                                        <a href="javascript:void(0);" class="min-price" onclick="togglePrice(this, '${product.min_price}')">
+                                            <i class="fas fa-money-bill-wave"></i> <span>Dernier Prix</span>
+                                        </a>
+                                    </div>
+                                    <p ${product.product_whatsapp} class="cta-button">
+                                        <i class="fab fa-whatsapp"></i> Commande
+                                    </p>
+                                </div>
+                            `;
+                            videosGrid.appendChild(videoCard);
+                        }
+                    });
+
+                    videosSection.appendChild(videosGrid);
+                    profileContainer.appendChild(videosSection);
+                })
+                .catch(error => console.error("Erreur lors de la récupération des produits:", error));
+        }
+        function togglePrice(element, price) {
+            // Si l'élément a déjà la classe "show", on ne fait rien
+            if (element.classList.contains('show')) return;
+
+            // Si c'est le "Prix", on remplace le texte par le prix
+            if (element.classList.contains('price')) {
+                element.textContent = price + " FCFA";
+            }
+            // Si c'est le "Dernier Prix", on remplace le texte par le prix
+            else if (element.classList.contains('min-price')) {
+                element.textContent = price + " FCFA";
+            }
+
+            // Ajouter la classe "show" pour colorer le prix et éviter de le changer à nouveau
+            element.classList.add('show');
+        }
+        function togglePrice(element, price) {
+            if (element.classList.contains('show')) return;
+
+            // Change le texte de l'élément en affichant le prix
+            const priceElement = element.querySelector('span');
+            priceElement.textContent = price + " FCFA";
+
+            // Applique la classe "show" pour ajouter un effet visuel
+            element.classList.add('show');
+        }
+        loadSellerProfile(1);
+    </script>
+
+</body>
+</html>

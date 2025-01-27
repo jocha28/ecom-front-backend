@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter un Produit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        form label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        form input, form textarea, form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        form textarea {
+            resize: vertical;
+        }
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #218838;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ajouter un Produit</h1>
+        <form id="productForm">
+            <label for="name">Nom du Produit</label>
+            <input type="text" id="name" name="name" placeholder="Ex: VIVO" required>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" placeholder="Décrivez le produit" required></textarea>
+
+            <label for="price">Prix</label>
+            <input type="number" id="price" name="price" step="0.01" placeholder="Ex: 50000" required>
+
+            <label for="min_price">Prix Minimum</label>
+            <input type="number" id="min_price" name="min_price" step="0.01" placeholder="Ex: 35000" required>
+
+            <label for="image">Image du Produit</label>
+            <input type="file" id="image" name="image" accept="image/*" required>
+
+            <label for="video">Vidéo du Produit (Optionnel)</label>
+            <input type="file" id="video" name="video" accept="video/*">
+
+            <label for="seller">Vendeur</label>
+            <select id="seller" name="seller" required>
+                <option value="">Sélectionnez un vendeur</option>
+                <!-- Les vendeurs seront ajoutés dynamiquement ici -->
+            </select>
+
+            <button type="submit">Ajouter le Produit</button>
+        </form>
+        <p class="error" id="error"></p>
+    </div>
+
+    <script>
+        // Charger les vendeurs dynamiquement
+        document.addEventListener("DOMContentLoaded", function () {
+            const sellerSelect = document.getElementById("seller");
+
+            fetch("http://127.0.0.1:8000/api/sellers/") // Remplacez avec votre URL d'API
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(seller => {
+                        const option = document.createElement("option");
+                        option.value = seller.id;
+                        option.textContent = seller.name;
+                        sellerSelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error("Erreur lors du chargement des vendeurs :", error);
+                });
+        });
+
+        // Validation et soumission du formulaire
+        const form = document.getElementById("productForm");
+        const errorElement = document.getElementById("error");
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const price = parseFloat(document.getElementById("price").value);
+            const minPrice = parseFloat(document.getElementById("min_price").value);
+
+            if (minPrice > price) {
+                errorElement.textContent = "Le prix minimum ne peut pas être supérieur au prix.";
+                return;
+            }
+
+            errorElement.textContent = ""; // Réinitialiser les erreurs
+
+            const formData = new FormData(form);
+
+            fetch("http://127.0.0.1:8000/api/products/", { // Remplacez avec votre URL d'API
+                method: "POST",
+                body: formData,
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur lors de l'ajout du produit");
+                    return response.json();
+                })
+                .then(data => {
+                    alert("Produit ajouté avec succès !");
+                    form.reset();
+                })
+                .catch(error => {
+                    console.error("Erreur :", error);
+                    alert("Une erreur s'est produite.");
+                });
+        });
+    </script>
+</body>
+</html>

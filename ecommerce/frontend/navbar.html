@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .content {
+            min-height: 100vh;
+            padding-bottom: 60px; /* Space for the navbar */
+        }
+
+        .navbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #333;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-item i {
+            font-size: 24px;
+            display: block;
+        }
+
+        .nav-item span {
+            display: block;
+            font-size: 12px;
+        }
+
+        .nav-item:hover {
+            background-color: #555;
+            border-radius: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <nav class="navbar">
+        
+        <a href="prodcutview.html" class="nav-item">
+            <i class="fas fa-box"></i>
+            <span>Produit Image</span>
+        </a>
+        <a href="videosproduct.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Produit Vidéo</span>
+        </a>
+        <a href="profilvendeur.html" class="nav-item">
+            <i class="fas fa-user-friends"></i>
+            <span>Profil Vendeur</span>
+        </a>
+        <a href="friend.html" class="nav-item">
+            <i class="fas fa-store"></i>
+            <span>Vendeur</span>
+        </a>
+        <a href="profilclient.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Mon Profil</span>
+        </a>
+    </nav>
+</body>
+</html>

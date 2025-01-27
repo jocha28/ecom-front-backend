@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Client</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .profile-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .header {
+            background-color: #000000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 3px solid #004d40;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+        .profile-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            background-color: #ffffff;
+        }
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #000000;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+        .profile-picture:hover {
+            transform: scale(1.05);
+        }
+        .profile-info h2 {
+            margin: 10px 0;
+            font-size: 20px;
+            color: #333;
+        }
+        .profile-info p {
+            margin: 5px 0;
+            color: #777;
+            font-size: 14px;
+        }
+        .followed-sellers {
+            margin-top: 30px;
+        }
+        .followed-sellers h3 {
+            font-size: 20px;
+            color: #000000;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .seller-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .seller-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        .seller-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .seller-info {
+            flex: 1;
+        }
+        .seller-info p {
+            margin: 0;
+            font-size: 14px;
+            color: #444;
+        }
+        .social-icons a {
+            font-size: 18px;
+            color: #000000;
+            margin-right: 10px;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #000000;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background-color: #ffffff;
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+            border-radius: 0 0 12px 12px;
+        }
+        .action-buttons button {
+            border: none;
+            background-color: #00796b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .action-buttons button:hover {
+            background-color: #004d40;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="profileContainer">
+        <!-- Le profil du client sera affiché ici -->
+    </div>
+    <div id="navbar"></div>
+    <script src="loadNavbar.js"></script>
+
+
+    <script>
+        // URL de l'API pour récupérer les informations du client
+        const clientUrl = "http://127.0.0.1:8000/api/clients/"; // Remplacez par votre URL
+        const followsUrl = "http://127.0.0.1:8000/api/friendships/"; // Remplacez par votre URL de l'API de suivi
+        const sellersUrl = "http://127.0.0.1:8000/api/sellers/"; // Remplacez par votre URL de l'API des vendeurs
+
+        const profileContainer = document.getElementById('profileContainer');
+
+        // Fonction pour récupérer et afficher le profil du client
+        function loadClientProfile(clientId) {
+            fetch(`${clientUrl}${clientId}/`)
+                .then(response => response.json())
+                .then(client => {
+                    // Créer la carte du profil du client
+                    const profileCard = document.createElement('div');
+                    profileCard.classList.add('profile-card');
+
+                    profileCard.innerHTML = `
+                        <div class="header">
+                            <h1>Profil</h1>
+                        </div>
+                        <div class="profile-header">
+                            <img src="${client.profile_picture}" alt="${client.name}" class="profile-picture" />
+                            <div class="profile-info">
+                                <h2>${client.name}</h2>
+                            </div>
+                        </div>
+                    `;
+
+                    // Ajouter le profil à la page
+                    profileContainer.appendChild(profileCard);
+
+                    // Charger les vendeurs suivis par le client
+                    loadFollowedSellers(clientId);
+                })
+                .catch(error => console.error("Erreur lors de la récupération du profil client:", error));
+        }
+
+        // Fonction pour récupérer et afficher les vendeurs suivis
+        function loadFollowedSellers(clientId) {
+            fetch(`${followsUrl}?client=${clientId}`)
+                .then(response => response.json())
+                .then(follows => {
+                    // Créer la section des vendeurs suivis
+                    const followedSellersSection = document.createElement('div');
+                    followedSellersSection.classList.add('followed-sellers');
+                    followedSellersSection.innerHTML = `<h3>Vendeurs suivis</h3>`;
+
+                    follows.forEach(follow => {
+                        fetch(`${sellersUrl}${follow.seller}/`)
+                            .then(response => response.json())
+                            .then(seller => {
+                                const sellerItem = document.createElement('div');
+                                sellerItem.classList.add('seller-item');
+
+                                sellerItem.innerHTML = `
+                                    <img src="${seller.profile_picture}" alt="${seller.name}" />
+                                    <div class="seller-info">
+                                        <p><strong>${seller.name}</strong></p>
+                                        <p>${seller.bio}</p>
+                                    </div>
+                                    <div class="social-icons">
+                                        ${seller.whatsapp ? `<a href="https://wa.me/${seller.whatsapp}" target="_blank"><i class="fab fa-whatsapp"></i></a>` : ''}
+                                        ${seller.facebook ? `<a href="https://facebook.com/${seller.facebook}" target="_blank"><i class="fab fa-facebook"></i></a>` : ''}
+                                    </div>
+                                `;
+
+                                followedSellersSection.appendChild(sellerItem);
+                            })
+                            .catch(error => console.error("Erreur lors de la récupération des informations du vendeur:", error));
+                    });
+
+                    // Ajouter la section des vendeurs suivis
+                    profileContainer.appendChild(followedSellersSection);
+                })
+                .catch(error => console.error("Erreur lors de la récupération des vendeurs suivis:", error));
+        }
+
+        // Charger le profil du client avec un ID donné
+        loadClientProfile(1); // Remplacez 1 par l'ID du client que vous souhaitez afficher
+    </script>
+
+</body>
+</html>
